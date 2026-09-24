@@ -1,0 +1,31 @@
+name: Calculation question or defect
+description: A result you believe differs from the rule it cites.
+labels: [calculation]
+body:
+  - type: markdown
+    attributes:
+      value: "**Public repository.** Never post loan, customer or personal data, or an evidence package containing it. Reproduce the case with made-up values."
+  - type: input
+    id: tool
+    attributes:
+      label: Tool and release
+      description: The tool name and the manifest_id or release version from the response.
+    validations:
+      required: true
+  - type: textarea
+    id: request
+    attributes:
+      label: A request that reproduces it (made-up values)
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and the rule or source that says so
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What Sequb returned

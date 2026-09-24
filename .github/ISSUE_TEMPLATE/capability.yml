@@ -1,0 +1,29 @@
+name: Capability request
+description: A tool, option or market Sequb does not cover yet.
+labels: [capability]
+body:
+  - type: markdown
+    attributes:
+      value: "**Public repository.** Never post loan, customer or personal data. Use made-up values."
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you need to calculate?
+      description: The calculation, the market or jurisdiction, and the rule or convention it follows (cite it if you can).
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: How do you do it today?
+      description: For example, the agent computes it in context, a spreadsheet, or a vendor system.
+  - type: dropdown
+    id: reliance
+    attributes:
+      label: Would you rely on the result?
+      options:
+        - Yes, in production, with evidence retained
+        - Yes, for internal checks
+        - Exploring
+    validations:
+      required: true

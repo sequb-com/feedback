@@ -1,0 +1,23 @@
+name: New domain request
+description: A kind of calculation Sequb does not do at all.
+labels: [domain]
+body:
+  - type: markdown
+    attributes:
+      value: "**Public repository.** Never post loan, customer or personal data. Use made-up values."
+  - type: textarea
+    id: domain
+    attributes:
+      label: The domain
+      description: What kind of calculation, who performs it, and which authority defines it.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: A worked example
+      description: Inputs and the expected result, with made-up values and a citation for the rule.
+  - type: textarea
+    id: why
+    attributes:
+      label: Why an agent needs evidence for it
