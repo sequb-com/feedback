@@ -1,0 +1,7 @@
+// Markdown style for the feedback channel. Prose is hand-wrapped at 100
+// columns, as in the rest of the sequb project.
+{
+  "config": {
+    "MD013": { "line_length": 100, "tables": false, "code_blocks": false }
+  }
+}

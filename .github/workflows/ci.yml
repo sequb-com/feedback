@@ -1,0 +1,85 @@
+# The `ci` rollup for sequb's public feedback channel (estate profile `content`,
+# lagstyr/standards STANDARD.md §9.2). There is no code here, so `ci` lints the
+# content: the issue forms and this workflow against GitHub's schemas, and the
+# Markdown for style and typos. `ci` is the only required status check; it is
+# red unless every job it needs succeeded, so a skipped or cancelled job fails.
+#
+# This repository is public: jobs run on GitHub-hosted runners only, never on
+# a self-hosted runner, and the workflow holds no secrets.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [staging, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  schemas:
+    name: schemas
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Issue forms, issue config and workflows against GitHub's schemas
+        run: |
+          set -euo pipefail
+          cj() { pipx run --spec 'check-jsonschema==0.38.2' check-jsonschema "$@"; }
+          shopt -s nullglob
+          forms=()
+          for f in .github/ISSUE_TEMPLATE/*.yml .github/ISSUE_TEMPLATE/*.yaml; do
+            [ "$(basename "$f")" = config.yml ] || forms+=("$f")
+          done
+          if [ "${#forms[@]}" -eq 0 ]; then echo "no issue forms found"; exit 1; fi
+          cj --builtin-schema vendor.github-issue-forms "${forms[@]}"
+          cj --builtin-schema vendor.github-issue-config .github/ISSUE_TEMPLATE/config.yml
+          cj --builtin-schema vendor.github-workflows .github/workflows/*.yml
+          grep -qx 'blank_issues_enabled: false' .github/ISSUE_TEMPLATE/config.yml \
+            || { echo "blank issues must stay disabled"; exit 1; }
+
+  markdown:
+    name: markdown
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: DavidAnson/markdownlint-cli2-action@21c1be1b93ad9ed58fa840aacc3f279cde2a72ff # v24.2.0
+        with:
+          globs: '**/*.md'
+
+  typos:
+    name: typos
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: crate-ci/typos@512fc24f32f44ab01972217aaaf3dc86ec234d53 # v1.50.2
+
+  ci:
+    name: ci
+    if: always()
+    needs: [schemas, markdown, typos]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Every job succeeded
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          set -euo pipefail
+          echo "results: $RESULTS"
+          for r in $RESULTS; do
+            [ "$r" = success ] || { echo "a required job was $r"; exit 1; }
+          done
