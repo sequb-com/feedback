@@ -1,6 +1,7 @@
 name: New domain request
 description: A kind of calculation Sequb does not do at all.
 labels: [domain]
+bogus_key: planted
 body:
   - type: markdown
     attributes:
